@@ -244,7 +244,7 @@ function CaseCard({
       {/* Top accent bar */}
       <div className={cn("h-1.5 w-full bg-gradient-to-r", accent.glow)} />
 
-      <div className="flex h-[calc(100%-1.5rem)]">
+      <div className={cn("flex", mobile ? "flex-col" : "flex-row", "h-[calc(100%-1.5rem)]")}>
         {/* Desktop: Project visual — flush left, full height */}
         {!mobile && (
           <div className="hidden md:block w-[34%] min-w-[200px] relative overflow-hidden">
@@ -308,7 +308,7 @@ function CaseCard({
           </p>
 
           {/* Metrics */}
-          <div className="grid grid-cols-3 gap-4 mb-4 shrink-0">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mb-4 shrink-0">
             {cs.metrics.map((m) => (
               <div
                 key={m.label}
