@@ -17,7 +17,6 @@ import {
 import {
   SKILL_GROUPS,
   type SkillGroup,
-  type SkillLevel,
 } from "@/lib/portfolio-data";
 import { SectionHeading } from "@/components/sections/section-heading";
 import { cn } from "@/lib/utils";
@@ -103,27 +102,6 @@ const ACCENT_STYLES: Record<
   },
 };
 
-const LEVEL_META: Record<
-  SkillLevel,
-  { label: string; dotClass: string; weight: string }
-> = {
-  daily: {
-    label: "Daily",
-    dotClass: "bg-primary",
-    weight: "font-semibold",
-  },
-  solid: {
-    label: "Solid",
-    dotClass: "bg-primary/60",
-    weight: "font-medium",
-  },
-  familiar: {
-    label: "Familiar",
-    dotClass: "bg-primary/30",
-    weight: "font-normal",
-  },
-};
-
 export function TechStack() {
   const [activeGroup, setActiveGroup] = React.useState<string>(SKILL_GROUPS[0].id);
   const current = SKILL_GROUPS.find((g) => g.id === activeGroup) ?? SKILL_GROUPS[0];
@@ -137,25 +115,8 @@ export function TechStack() {
         <SectionHeading
           eyebrow="Toolbox"
           title="The stack I work with"
-          description="Nine domains, organized by what I actually use them for. No arbitrary percentages — just honest confidence tags so you know what you're getting."
+          description="Nine domains, organized by what I actually use them for. Each category groups related tools and frameworks I reach for in production."
         />
-
-        {/* Legend */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="mt-8 flex flex-wrap items-center gap-4 text-xs text-muted-foreground"
-        >
-          <span className="font-mono uppercase tracking-widest text-[10px]">Confidence:</span>
-          {(["daily", "solid", "familiar"] as SkillLevel[]).map((lvl) => (
-            <span key={lvl} className="inline-flex items-center gap-1.5">
-              <span className={cn("h-2 w-2 rounded-full", LEVEL_META[lvl].dotClass)} />
-              {LEVEL_META[lvl].label}
-            </span>
-          ))}
-        </motion.div>
 
         {/* Category tabs — wrapped grid so ALL categories are visible at once */}
         <div className="mt-8 flex flex-wrap gap-2">
@@ -221,12 +182,6 @@ function SkillGroupCard({ group }: { group: SkillGroup }) {
   const Icon = ICONS[group.icon] ?? Server;
   const accent = ACCENT_STYLES[group.accent] ?? ACCENT_STYLES.violet;
 
-  const counts = {
-    daily: group.skills.filter((s) => s.level === "daily").length,
-    solid: group.skills.filter((s) => s.level === "solid").length,
-    familiar: group.skills.filter((s) => s.level === "familiar").length,
-  };
-
   return (
     <motion.div
       layout
@@ -257,12 +212,6 @@ function SkillGroupCard({ group }: { group: SkillGroup }) {
         {group.blurb}
       </p>
 
-      <div className="grid grid-cols-3 gap-3">
-        <CountTile label="Daily" value={counts.daily} accentClass={accent.text} />
-        <CountTile label="Solid" value={counts.solid} accentClass={accent.text} />
-        <CountTile label="Familiar" value={counts.familiar} accentClass={accent.text} />
-      </div>
-
       <div className="mt-6 pt-5 border-t border-border/40 text-xs text-muted-foreground">
         <span className="font-mono uppercase tracking-widest text-[10px]">Total</span>
         <span className={cn("ml-2 font-display font-bold text-base", accent.text)}>
@@ -271,23 +220,6 @@ function SkillGroupCard({ group }: { group: SkillGroup }) {
         <span className="ml-1">technologies</span>
       </div>
     </motion.div>
-  );
-}
-
-function CountTile({
-  label,
-  value,
-  accentClass,
-}: {
-  label: string;
-  value: number;
-  accentClass: string;
-}) {
-  return (
-    <div className="rounded-xl bg-background/40 border border-border/40 p-3 text-center">
-      <div className={cn("font-display font-bold text-2xl", accentClass)}>{value}</div>
-      <div className="text-[10px] text-muted-foreground mt-0.5">{label}</div>
-    </div>
   );
 }
 
@@ -309,42 +241,22 @@ function SkillGrid({ group }: { group: SkillGroup }) {
       </div>
 
       <div className="flex flex-wrap gap-2">
-        {group.skills.map((skill, i) => {
-          const meta = LEVEL_META[skill.level];
-          return (
-            <motion.span
-              key={skill.name}
-              initial={{ opacity: 0, scale: 0.85 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{
-                duration: 0.4,
-                delay: i * 0.025,
-                ease: [0.22, 1, 0.36, 1],
-              }}
-              whileHover={{ scale: 1.05, y: -2 }}
-              className={cn(
-                "group inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs cursor-default transition-colors",
-                "border-border/60 hover:border-primary/40",
-                skill.level === "daily"
-                  ? "bg-background/60 " + meta.weight
-                  : skill.level === "solid"
-                  ? "bg-background/40 " + meta.weight
-                  : "bg-background/20 " + meta.weight + " text-muted-foreground"
-              )}
-            >
-              <span
-                className={cn(
-                  "h-1.5 w-1.5 rounded-full transition-transform group-hover:scale-150",
-                  meta.dotClass
-                )}
-              />
-              {skill.name}
-              <span className={cn("ml-0.5 text-[9px] font-mono uppercase tracking-wider opacity-60", accent.text)}>
-                {meta.label}
-              </span>
-            </motion.span>
-          );
-        })}
+        {group.skills.map((skill, i) => (
+          <motion.span
+            key={skill}
+            initial={{ opacity: 0, scale: 0.85 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{
+              duration: 0.4,
+              delay: i * 0.025,
+              ease: [0.22, 1, 0.36, 1],
+            }}
+            whileHover={{ scale: 1.05, y: -2 }}
+            className="inline-flex items-center rounded-full border border-border/60 bg-background/40 px-3.5 py-1.5 text-xs cursor-default transition-colors hover:border-primary/40"
+          >
+            {skill}
+          </motion.span>
+        ))}
       </div>
 
       {/* Footer hint */}

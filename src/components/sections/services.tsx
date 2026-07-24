@@ -103,8 +103,8 @@ export function Services() {
                   ))}
                 </ul>
 
-                {/* Footer: stack + price */}
-                <div className="pt-4 border-t border-border/50 flex items-center justify-between">
+                {/* Footer: stack */}
+                <div className="pt-4 border-t border-border/50">
                   <div className="flex flex-wrap gap-1.5">
                     {service.stack.slice(0, 2).map((s) => (
                       <span
@@ -120,9 +120,6 @@ export function Services() {
                       </span>
                     )}
                   </div>
-                  <span className="text-xs font-semibold text-foreground">
-                    from {service.priceFrom}
-                  </span>
                 </div>
 
                 {/* Hover arrow */}

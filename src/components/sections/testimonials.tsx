@@ -27,7 +27,7 @@ export function Testimonials() {
   // Faster interval: 4.5s instead of 7s
   React.useEffect(() => {
     if (paused) return;
-    const id = setInterval(next, 4500);
+    const id = setInterval(next, 5500);
     return () => clearInterval(id);
   }, [next, paused]);
 

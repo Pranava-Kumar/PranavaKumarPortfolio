@@ -4,6 +4,7 @@ import * as React from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Float, MeshDistortMaterial, Environment, Icosahedron, Torus, Octahedron } from "@react-three/drei";
 import * as THREE from "three";
+import { cn } from "@/lib/utils";
 
 /**
  * A slowly rotating distorted icosahedron — the centerpiece of the hero.
@@ -19,7 +20,6 @@ function HeroBlob() {
     meshRef.current.rotation.y = t * 0.12;
     meshRef.current.rotation.x = Math.sin(t * 0.2) * 0.1;
     if (matRef.current) {
-      // Subtle distortion pulsing
       matRef.current.distort = 0.32 + Math.sin(t * 0.5) * 0.06;
     }
   });
@@ -124,23 +124,58 @@ function CameraParallax() {
   return null;
 }
 
-export function HeroScene() {
+/** Reports when the canvas is ready so parent can fade it in. */
+function ReadyNotifier({ onReady }: { onReady: () => void }) {
+  const { gl } = useThree();
+
+  React.useEffect(() => {
+    // Small delay to ensure the first frame has rendered
+    const id = requestAnimationFrame(() => onReady());
+    return () => cancelAnimationFrame(id);
+  }, [gl, onReady]);
+
+  return null;
+}
+
+export function HeroScene({ className }: { className?: string }) {
+  const [ready, setReady] = React.useState(false);
+
   return (
-    <Canvas
-      dpr={[1, 2]}
-      gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
-      camera={{ position: [0, 0, 6], fov: 50 }}
+    <div
+      className={cn(
+        "absolute inset-0 transition-opacity duration-700",
+        ready ? "opacity-100" : "opacity-0",
+        className
+      )}
     >
-      <CameraParallax />
-      <ambientLight intensity={0.4} />
-      <directionalLight position={[5, 5, 5]} intensity={1.2} color="#ffffff" />
-      <pointLight position={[-5, -3, -2]} intensity={2} color="#7c5cff" />
-      <pointLight position={[5, 3, 2]} intensity={1.5} color="#ff6b9d" />
+      <Canvas
+        dpr={[0.5, 1.5]}
+        gl={{
+          antialias: true,
+          alpha: true,
+          powerPreference: "high-performance",
+          // Prevent the canvas from showing a white flash before WebGL is ready
+          preserveDrawingBuffer: false,
+        }}
+        camera={{ position: [0, 0, 6], fov: 50 }}
+        // Makes the canvas transparent by default
+        style={{ background: "transparent" }}
+        onCreated={(state) => {
+          state.gl.setClearColor(0x000000, 0);
+        }}
+      >
+        <ReadyNotifier onReady={React.useCallback(() => setReady(true), [])} />
+        <CameraParallax />
+        <ambientLight intensity={0.4} />
+        <directionalLight position={[5, 5, 5]} intensity={1.2} color="#ffffff" />
+        <pointLight position={[-5, -3, -2]} intensity={2} color="#7c5cff" />
+        <pointLight position={[5, 3, 2]} intensity={1.5} color="#ff6b9d" />
 
-      <HeroBlob />
-      <OrbitingShapes />
+        <HeroBlob />
+        <OrbitingShapes />
 
-      <Environment preset="city" />
-    </Canvas>
+        <Environment preset="city" />
+      </Canvas>
+    </div>
   );
 }

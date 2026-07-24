@@ -7,6 +7,7 @@ import { useGSAP } from "@gsap/react";
 import { ArrowUpRight } from "lucide-react";
 import { CASE_STUDIES } from "@/lib/portfolio-data";
 import { SectionHeading } from "@/components/sections/section-heading";
+import { ProjectVisual } from "@/components/3d/project-visual";
 import { cn } from "@/lib/utils";
 
 if (typeof window !== "undefined") {
@@ -221,13 +222,13 @@ function CaseCard({
   const accent = ACCENT_STYLES[cs.accent] ?? ACCENT_STYLES.violet;
   // Desktop: each card fills almost the entire viewport so ONE card is the
   // hero at any scroll position. A thin sliver of the next card peeks in
-  // to signal scrollability. No max-width cap — let it breathe on wide screens.
+  // to signal scrollability.
   const width = mobile
     ? "w-full"
     : "w-[95vw] lg:w-[92vw] xl:w-[88vw] 2xl:w-[84vw] shrink-0";
   // Pinned section height = viewport. Reserve room for the heading block
   // above the track so the card never gets clipped vertically.
-  const height = mobile ? "" : "h-[68vh] min-h-[460px] max-h-[640px]";
+  const height = mobile ? "" : "h-[78vh] min-h-[520px] max-h-[720px]";
 
   return (
     <article
@@ -243,80 +244,116 @@ function CaseCard({
       {/* Top accent bar */}
       <div className={cn("h-1.5 w-full bg-gradient-to-r", accent.glow)} />
 
-      <div className="p-7 sm:p-9 lg:p-10 h-[calc(100%-1.5rem)] flex flex-col">
-        {/* Header row */}
-        <div className="flex items-start justify-between mb-5">
-          <div>
-            <span
-              className={cn(
-                "inline-flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-widest px-2.5 py-1 rounded-full mb-3",
-                accent.bg,
-                accent.text
-              )}
-            >
-              {cs.category}
-            </span>
-            <h3 className="font-display font-bold text-3xl lg:text-4xl tracking-tight">
-              {cs.name}
-            </h3>
-            <p className="mt-1 text-sm text-muted-foreground">{cs.headline}</p>
-          </div>
-          <span className="font-mono text-xs text-muted-foreground/60 tabular-nums">
-            {String(index + 1).padStart(2, "0")}
-          </span>
-        </div>
-
-        {/* Description */}
-        <p className="text-sm text-muted-foreground leading-relaxed mb-5">
-          {cs.description}
-        </p>
-
-        {/* Metrics */}
-        <div className="grid grid-cols-3 gap-3 mb-5">
-          {cs.metrics.map((m) => (
-            <div
-              key={m.label}
-              className="rounded-xl bg-background/40 border border-border/40 p-3 text-center"
-            >
-              <div className={cn("font-display font-bold text-lg", accent.text)}>
-                {m.value}
-              </div>
-              <div className="text-[10px] text-muted-foreground leading-tight mt-0.5">
-                {m.label}
-              </div>
+      <div className="flex h-[calc(100%-1.5rem)]">
+        {/* Desktop: Project visual — flush left, full height */}
+        {!mobile && (
+          <div className="hidden md:block w-[34%] min-w-[200px] relative overflow-hidden">
+            <div className="absolute inset-0">
+              <ProjectVisual
+                projectId={cs.id}
+                accent={cs.accent}
+                className="w-full h-full"
+              />
             </div>
-          ))}
-        </div>
+            {/* Gradient fade to the right so the visual blends into content */}
+            <div
+              className={cn(
+                "absolute inset-y-0 right-0 w-12 bg-gradient-to-l",
+                "from-background/0 to-background/0",
+                "via-background/30"
+              )}
+            />
+          </div>
+        )}
 
-        {/* Tags */}
-        <div className="flex flex-wrap gap-1.5 mb-5">
-          {cs.tags.map((tag) => (
-            <span
-              key={tag}
-              className="text-[10px] font-mono px-2 py-1 rounded-full bg-muted/50 text-muted-foreground border border-border/40"
-            >
-              {tag}
+        {/* Mobile: visual banner */}
+        {mobile && (
+          <div className="md:hidden w-full h-36 relative overflow-hidden">
+            <ProjectVisual
+              projectId={cs.id}
+              accent={cs.accent}
+              className="w-full h-full"
+            />
+            <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-background to-transparent" />
+          </div>
+        )}
+
+        {/* Content area */}
+        <div className="flex-1 p-5 sm:p-7 lg:p-8 flex flex-col min-w-0 overflow-y-auto">
+          {/* Header row */}
+          <div className="flex items-start justify-between mb-4 shrink-0">
+            <div>
+              <span
+                className={cn(
+                  "inline-flex items-center gap-1.5 text-[10px] lg:text-xs font-mono uppercase tracking-widest px-2.5 py-1 rounded-full mb-2",
+                  accent.bg,
+                  accent.text
+                )}
+              >
+                {cs.category}
+              </span>
+              <h3 className="font-display font-bold text-2xl lg:text-3xl xl:text-4xl tracking-tight">
+                {cs.name}
+              </h3>
+              <p className="mt-1 text-sm lg:text-base text-muted-foreground">{cs.headline}</p>
+            </div>
+            <span className="font-mono text-xs text-muted-foreground/60 tabular-nums shrink-0 ml-4">
+              {String(index + 1).padStart(2, "0")}
             </span>
-          ))}
-        </div>
+          </div>
 
-        {/* Deliverable note + GitHub link — pinned to bottom */}
-        <div className="mt-auto pt-5 border-t border-border/40 flex items-center justify-between gap-3">
-          <span className="text-xs text-muted-foreground">
-            <span className="font-semibold text-foreground">Deliverable:</span>{" "}
-            {cs.deliverable}
-          </span>
-          {cs.repoUrl && (
-            <a
-              href={cs.repoUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline shrink-0"
-            >
-              View repo
-              <ArrowUpRight className="h-3.5 w-3.5" />
-            </a>
-          )}
+          {/* Description — clamped to 4 lines so card stays balanced */}
+          <p className="text-sm lg:text-base text-muted-foreground leading-relaxed mb-4 line-clamp-4">
+            {cs.description}
+          </p>
+
+          {/* Metrics */}
+          <div className="grid grid-cols-3 gap-4 mb-4 shrink-0">
+            {cs.metrics.map((m) => (
+              <div
+                key={m.label}
+                className="rounded-xl bg-background/40 border border-border/40 p-4 text-center"
+              >
+                <div className={cn("font-display font-bold text-base lg:text-lg xl:text-xl", accent.text)}>
+                  {m.value}
+                </div>
+                <div className="text-[10px] lg:text-xs text-muted-foreground leading-tight mt-0.5">
+                  {m.label}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Tags */}
+          <div className="flex flex-wrap gap-1.5 mb-4 shrink-0">
+            {cs.tags.map((tag) => (
+              <span
+                key={tag}
+                className="text-[10px] lg:text-xs font-mono px-2 py-1 rounded-full bg-muted/50 text-muted-foreground border border-border/40"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+
+          {/* Deliverable note + GitHub link — pinned to bottom */}
+          <div className="mt-auto pt-4 border-t border-border/40 flex items-center justify-between gap-3 shrink-0">
+            <span className="text-xs lg:text-sm text-muted-foreground truncate">
+              <span className="font-semibold text-foreground">Deliverable:</span>{" "}
+              {cs.deliverable}
+            </span>
+            {cs.repoUrl && (
+              <a
+                href={cs.repoUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 text-xs lg:text-sm font-medium text-primary hover:underline shrink-0"
+              >
+                View repo
+                <ArrowUpRight className="h-3.5 w-3.5" />
+              </a>
+            )}
+          </div>
         </div>
       </div>
 
@@ -335,7 +372,7 @@ function EndCard({ mobile = false }: { mobile?: boolean }) {
   const width = mobile
     ? "w-full"
     : "w-[95vw] lg:w-[92vw] xl:w-[88vw] 2xl:w-[84vw] shrink-0";
-  const height = mobile ? "" : "h-[68vh] min-h-[460px] max-h-[640px]";
+  const height = mobile ? "" : "h-[78vh] min-h-[520px] max-h-[720px]";
   return (
     <article
       data-case-card
@@ -352,7 +389,7 @@ function EndCard({ mobile = false }: { mobile?: boolean }) {
         </p>
         <a
           href="#contact"
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+          className="inline-flex items-center gap-1.5 text-sm lg:text-base font-medium text-primary hover:underline"
         >
           Start a conversation
           <ArrowUpRight className="h-4 w-4" />

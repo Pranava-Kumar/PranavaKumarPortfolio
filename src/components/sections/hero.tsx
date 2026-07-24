@@ -14,6 +14,11 @@ const HeroScene = dynamic(
   () => import("@/components/3d/hero-scene").then((m) => m.HeroScene),
   { ssr: false, loading: () => null }
 );
+const ThreeErrorBoundary = dynamic(
+  () =>
+    import("@/components/3d/error-boundary").then((m) => m.ThreeErrorBoundary),
+  { ssr: false }
+);
 
 export function Hero() {
   const ref = React.useRef<HTMLDivElement>(null);
@@ -41,7 +46,9 @@ export function Hero() {
         style={{ y: yScene, opacity }}
         className="absolute inset-0 z-0"
       >
-        <HeroScene />
+        <ThreeErrorBoundary>
+          <HeroScene />
+        </ThreeErrorBoundary>
       </motion.div>
 
       {/* Foreground content */}
